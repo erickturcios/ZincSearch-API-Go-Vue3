@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"log"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -54,7 +54,7 @@ func GetUrlQueryFromStruct(v interface{}) string {
 	vType := reflect.TypeOf(v)
 
 	if vType.Kind() != reflect.Struct {
-		log.Fatal("type ", vType.Kind(), " is not supported")
+		fmt.Println("type ", vType.Kind(), " is not supported")
 	}
 
 	//obtiene los campos

@@ -99,7 +99,7 @@ func (s *ZincSearch) debugReq(request *http.Request) {
 	if err == nil {
 		fmt.Printf("%s\n\n", data)
 	} else {
-		log.Fatalf("%s\n\n", err)
+		fmt.Printf("%s\n\n", err)
 	}
 }
 
@@ -111,16 +111,16 @@ func (s *ZincSearch) debugRes(response *http.Response) {
 	if err == nil {
 		fmt.Printf("%s\n\n", data)
 	} else {
-		log.Fatalf("%s\n\n", err)
+		fmt.Printf("%s\n\n", err)
 	}
 }
 
 // Realiza busqueda en API de ZincSearch
-func (s *ZincSearch) GetRecords(terms []string) (result string, httpError helpers.ErrorResponse) {
+func (s *ZincSearch) GetRecords(query string) (result string, httpError helpers.ErrorResponse) {
 	var sb strings.Builder
 	sb.WriteString("/api/")
 	sb.WriteString(INDEX_NAME)
-	sb.WriteString("_search")
+	sb.WriteString("/_search")
 
 	h := http.Client{Timeout: 20 * time.Second}
 
@@ -128,8 +128,17 @@ func (s *ZincSearch) GetRecords(terms []string) (result string, httpError helper
 	url := helpers.GetUrl(s.https, s.host, s.port, sb.String(), "")
 
 	var jsonBody string
-	if len(terms) == 0 {
+	if query == "" {
 		jsonBody = string(defaultRequest)
+	} else {
+		request, _ := json.Marshal(helpers.ZSRequest{
+			Explain:    false,
+			From:       0,
+			MaxResults: DEFAULT_MAX,
+			SearchType: "match",
+			Query:      helpers.ZSRequestQuery{Term: query},
+		})
+		jsonBody = string(request)
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(jsonBody))
@@ -164,7 +173,7 @@ func (s *ZincSearch) GetRecords(terms []string) (result string, httpError helper
 	} else {
 		httpError, err := helpers.GetError(response)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		return result, httpError
 

@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,7 +17,7 @@ var servicio service.ZincSearch
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error en la carga de variables de ambiente: %s", err)
+		fmt.Printf("Error en la carga de variables de ambiente: %s", err)
 	}
 
 	//inicia cliente de zincsearch
@@ -36,13 +37,24 @@ func main() {
 	r.Use(middleware.Timeout(40 * time.Second))
 
 	r.Get("/", getRecordsFromZinc)
+	r.Get("/search", getRecordsFromZinc)
 
 	//iniciar escucha
 	http.ListenAndServe(":8001", r)
 }
 
+// consulta API de ZincSearch
 func getRecordsFromZinc(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hola mundo!"))
 
-	rec, err := servicio.GetRecords()
+	query := r.URL.Query().Get("query")
+
+	rec, err := servicio.GetRecords(query)
+
+	if err.Code != 0 {
+		errorJson, _ := json.Marshal(err)
+		http.Error(w, string(errorJson), http.StatusNotFound)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(rec))
+	}
 }

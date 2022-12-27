@@ -3,7 +3,6 @@ package helpers
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -38,7 +37,7 @@ func GetError(response *http.Response) (httpError ErrorResponse, err error) {
 	}
 	err = json.Unmarshal(body, &httpError)
 	if err != nil {
-		log.Fatal(err)
+		return httpError, err
 	}
 	httpError.Code = response.StatusCode
 
