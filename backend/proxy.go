@@ -49,7 +49,7 @@ func getRecordsFromZinc(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 
 	rec, err := servicio.GetRecords(query)
-
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if err.Code != 0 {
 		errorJson, _ := json.Marshal(err)
 		http.Error(w, string(errorJson), http.StatusNotFound)
