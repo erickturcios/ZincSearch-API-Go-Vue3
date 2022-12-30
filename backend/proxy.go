@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
@@ -46,12 +47,26 @@ func main() {
 // consulta API de ZincSearch
 func getRecordsFromZinc(w http.ResponseWriter, r *http.Request) {
 
-	query := r.URL.Query().Get("query")
-
-	rec, err := servicio.GetRecords(query)
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	if err.Code != 0 {
-		errorJson, _ := json.Marshal(err)
+
+	query := r.URL.Query().Get("query")
+	pageTxt := r.URL.Query().Get("page")
+	if pageTxt == "" {
+		pageTxt = "1"
+	}
+
+	page, err := strconv.Atoi(pageTxt)
+
+	if err != nil {
+		http.Error(w, string("{El valor del argumento 'page' debe ser un numero entero}"), http.StatusBadRequest)
+	}
+	if page <= 0 {
+		http.Error(w, string("{El valor del argumento 'page' debe ser un numero mayor a 0}"), http.StatusBadRequest)
+	}
+
+	rec, errorLocal := servicio.GetRecords(query, page)
+	if errorLocal.Code != 0 {
+		errorJson, _ := json.Marshal(errorLocal)
 		http.Error(w, string(errorJson), http.StatusNotFound)
 	} else {
 		w.Header().Set("Content-Type", "application/json")

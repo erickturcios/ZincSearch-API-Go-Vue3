@@ -35,7 +35,7 @@ type ZincSearch struct {
 	https    bool
 }
 
-const DEFAULT_MAX int = 50
+const DEFAULT_MAX int = 10
 
 var defaultRequest []byte
 
@@ -116,13 +116,14 @@ func (s *ZincSearch) debugRes(response *http.Response) {
 }
 
 // Realiza busqueda en API de ZincSearch
-func (s *ZincSearch) GetRecords(query string) (result string, httpError helpers.ErrorResponse) {
+func (s *ZincSearch) GetRecords(query string, page int) (result string, httpError helpers.ErrorResponse) {
 	var sb strings.Builder
 	sb.WriteString("/api/")
 	sb.WriteString(INDEX_NAME)
 	sb.WriteString("/_search")
 
 	h := http.Client{Timeout: 20 * time.Second}
+	from := (page - 1) * 10
 
 	//obtiene string del URL
 	url := helpers.GetUrl(s.https, s.host, s.port, sb.String(), "")
@@ -133,7 +134,7 @@ func (s *ZincSearch) GetRecords(query string) (result string, httpError helpers.
 	} else {
 		request, _ := json.Marshal(helpers.ZSRequest{
 			Explain:    false,
-			From:       0,
+			From:       from,
 			MaxResults: DEFAULT_MAX,
 			SearchType: "matchphrase",
 			Query:      helpers.ZSRequestQuery{Term: query},
