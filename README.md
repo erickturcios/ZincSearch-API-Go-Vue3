@@ -22,6 +22,20 @@ Ejemplo de inicio del backend:
     cd backend
     go run proxy.go
 
+##Ejemplos:
+
+Para verificar la carga de datos JSON de uan busqueda general (sin criterio de busqueda):
+
+    http://localhost:8001/ 
+
+![Pantalla](assets/backend-nocriteria.jpg)
+
+Para buscar registros que contienen la frase "demo", paginados para mostrar 10 resultados correspondientes a la pagina 2:
+
+    http://localhost:8001/search?query=demo&page=2, 
+
+![Pantalla](assets/backend-criteria.jpg)
+
 
 # FRONTEND
 Ejemplo de inicio del frontend:
@@ -29,3 +43,6 @@ Ejemplo de inicio del frontend:
     cd frontend
     npm run dev
 
+Con esto se podrá acceder a la pantalla de consulta:
+
+![Pantalla](assets/frontend.jpg)
