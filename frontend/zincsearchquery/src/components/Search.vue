@@ -5,8 +5,25 @@ import { ref } from 'vue'
 const endpoint = "http://localhost:8001";
 const records = ref(null);
 const currentText = ref("");
+const currentSelected = ref(0);
 
 const query = ref("");
+
+//verifica si la linea actual ha sido seleccionada
+function isSelected(index){
+  return currentSelected.value != null && index == currentSelected.value;
+}
+
+function select(index){
+  currentSelected.value = index;
+  if(typeof records != "undefined"
+    && typeof records.value[index] != "undefined"
+    && typeof records.value[index]._source != "undefined"
+    && typeof records.value[index]._source.TextBody != "undefined"
+  ){
+    currentText.value = records.value[index]._source.TextBody;
+  }
+}
 
 async function receiveRecords(response){
   let data = await response.json();
@@ -18,7 +35,7 @@ async function receiveRecords(response){
      && data.hits.total.value > 0
   ){
     records.value = data.hits.hits;
-    currentText.value = records.value[0]._source.TextBody;
+    select(0);
   }
   else{
     records.value = [];
@@ -60,7 +77,10 @@ function searchRecords(){
                   </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in records">
+                <tr v-for="(item, index) in records" 
+                    v-bind:class="{'table-active':isSelected(index)}"
+                    @click="select(index)"
+                    >
                   <td>{{index+1}}</td>
                   <td>{{item._source.From}}</td>
                   <td>{{item._source.To}}</td>
@@ -72,7 +92,7 @@ function searchRecords(){
       </div>
       <div class="col-sm-5">
         <div class="container border rounded border-4 justify-content-md-center text-wrap text-break">
-          {{currentText }}
+          <p v-html="currentText"></p>
         </div>
         
       </div>
