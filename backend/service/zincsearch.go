@@ -135,7 +135,7 @@ func (s *ZincSearch) GetRecords(query string) (result string, httpError helpers.
 			Explain:    false,
 			From:       0,
 			MaxResults: DEFAULT_MAX,
-			SearchType: "match",
+			SearchType: "matchphrase",
 			Query:      helpers.ZSRequestQuery{Term: query},
 		})
 		jsonBody = string(request)

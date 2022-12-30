@@ -92,7 +92,7 @@ function searchRecords(){
       </div>
       <div class="col-sm-5">
         <div class="container border rounded border-4 justify-content-md-center text-wrap text-break">
-          <p v-html="currentText"></p>
+          <pre><span v-html="currentText" style="white-space: pre;"></span></pre>
         </div>
         
       </div>
